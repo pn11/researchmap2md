@@ -8,6 +8,7 @@ class TestSimple(unittest.TestCase):
     def test_researchmap2csv(self):
         researchmap2csv('resources/rm_presentations.csv')
         researchmap2csv('resources/rm_published_papers.csv')
+        researchmap2csv('resources/rm_industrial_property_rights.csv')
 
 
 if __name__ == '__main__':

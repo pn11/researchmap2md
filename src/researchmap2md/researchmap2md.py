@@ -6,7 +6,7 @@ import polars as pl
 
 logger = getLogger(__name__)
 
-CsvType = Literal['presentations', 'published_papers']
+CsvType = Literal['presentations', 'published_papers', 'industrial_property_rights']
 
 class NotSupportedError(Exception):
     pass
@@ -42,6 +42,8 @@ def researchmap2csv(filename: str) -> str:
         md = build_presentation(df)
     elif csv_type == 'published_papers':
         md = build_paper(df)
+    elif csv_type == 'industrial_property_rights':
+        md = build_industrial_property_rights(df)
     return md
 
 
@@ -73,6 +75,16 @@ def build_paper(df: pl.DataFrame) -> str:
         if row_dict['掲載種別'] != 'international_conference_proceedings':
             break
         out_str += f"""1. {row_dict['著者(英語)']}, {row_dict['タイトル(英語)']}, *{row_dict['誌名(英語)']}*, {row_dict['巻']}, {row_dict['号']}, pp{row_dict['開始ページ']}-{row_dict['終了ページ']} ({row_dict['出版年月']}).  {display_urls(row_dict)}
+"""
+
+    return out_str
+
+
+def build_industrial_property_rights(df: pl.DataFrame) -> str:
+    out_str = "\n## 特許\n"
+
+    for row_dict in df.to_dicts():
+        out_str += f"""1. {row_dict['産業財産権の種類']}, {row_dict['産業財産権名(日本語)']}, {row_dict['発明者/考案者/創作者(日本語)']}, {row_dict['出願番号']}, {row_dict['出願人(機関)(日本語)']}, {row_dict['公開番号']}, {row_dict['公表番号']}, {row_dict['特許番号/登録番号']}
 """
 
     return out_str
@@ -138,9 +150,10 @@ def get_csv_type(filename: str) -> CsvType:
         return line
     elif line == 'published_papers':
         return line
+    elif line == 'industrial_property_rights':
+        return line
     else:
-        print(line == 'presentations')
-        logger.error("presentations と published_papers にのみ対応しています。")
+        logger.error("presentations, published_papers, industrial_property_rights のみに対応しています。")
         raise NotSupportedError
 
 
